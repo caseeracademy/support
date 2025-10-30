@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caseer Academy API Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9FAFB;
+        }
+        .dark body {
+            background-color: #111827;
+        }
+        .code-panel {
+            background-color: #262626;
+        }
+        pre[class*="language-"] {
+            padding: 1em !important;
+            margin: 0 !important;
+            overflow: auto;
+            border-radius: 0.5rem;
+            background: #1E1E1E !important;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+        }
+        .token.string { color: #CE9178; }
+        .token.punctuation { color: #d4d4d4; }
+        .token.property { color: #9CDCFE; }
+        .token.number { color: #B5CEA8; }
+        .token.boolean { color: #569CD6; }
+        .token.keyword { color: #C586C0; }
+        .token.operator { color: #d4d4d4; }
+        .token.comment { color: #6A9955; }
+
+        .sidebar-link.active {
+            background-color: #F3F4F6;
+            color: #111827;
+            font-weight: 600;
+        }
+        .dark .sidebar-link.active {
+            background-color: #374151;
+            color: #F9FAFB;
+        }
+        .http-get { background-color: #10B981; color: white; }
+        .http-post { background-color: #3B82F6; color: white; }
+        .http-webhook { background-color: #8B5CF6; color: white; }
+        .http-admin { background-color: #6B7280; color: white; }
+    </style>
+</head>
+<body class="text-gray-700 dark:text-gray-300">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-72 bg-white dark:bg-gray-900 p-6 fixed h-full overflow-y-auto hidden lg:block border-r dark:border-gray-700">
+            <div class="flex justify-between items-center mb-4">
+                 <h1 class="text-lg font-bold text-gray-900 dark:text-white">Caseer Academy API</h1>
+                 <button id="dark-mode-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none">
+                    <svg id="moon-icon" class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    <svg id="sun-icon" class="w-5 h-5 text-yellow-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                 </button>
+            </div>
+            
+            <div class="relative mb-6">
+                <input id="search-input" type="text" placeholder="Search endpoints..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                <svg class="w-4 h-4 text-gray-400 absolute top-1/2 left-3 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+
+            <nav id="sidebar-nav">
+                <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">INTRODUCTION</h2>
+                <ul id="nav-group-introduction">
+                    <li><a href="#introduction" class="sidebar-link text-sm block py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">Overview</a></li>
+                    <li><a href="#authentication" class="sidebar-link text-sm block py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">Authentication</a></li>
+                </ul>
+
+                <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-8 mb-3">USER AUTH</h2>
+                <ul id="nav-group-auth">
+                     <li><a href="#create-user" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>Create User</span><span class="http-post text-xs font-bold px-2 py-0.5 rounded-full">POST</span></a></li>
+                     <li><a href="#request-otp" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>Request OTP</span><span class="http-post text-xs font-bold px-2 py-0.5 rounded-full">POST</span></a></li>
+                     <li><a href="#verify-otp" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>Verify OTP</span><span class="http-post text-xs font-bold px-2 py-0.5 rounded-full">POST</span></a></li>
+                </ul>
+
+                <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-8 mb-3">ENDPOINTS</h2>
+                <ul id="nav-group-endpoints">
+                    <li><a href="#get-all-courses" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>GET All Courses</span><span class="http-get text-xs font-bold px-2 py-0.5 rounded-full">GET</span></a></li>
+                    <li><a href="#get-my-courses" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>GET My Courses</span><span class="http-get text-xs font-bold px-2 py-0.5 rounded-full">GET</span></a></li>
+                    <li><a href="#get-course-details" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>GET Course Details</span><span class="http-get text-xs font-bold px-2 py-0.5 rounded-full">GET</span></a></li>
+                    <li><a href="#get-lesson-details" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>GET Lesson Details</span><span class="http-get text-xs font-bold px-2 py-0.5 rounded-full">GET</span></a></li>
+                    <li><a href="#get-user-profile" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>GET User Profile</span><span class="http-get text-xs font-bold px-2 py-0.5 rounded-full">GET</span></a></li>
+                    <li><a href="#initiate-payment" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>Initiate Payment</span><span class="http-post text-xs font-bold px-2 py-0.5 rounded-full">POST</span></a></li>
+                </ul>
+                
+                <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-8 mb-3">ADMIN</h2>
+                <ul id="nav-group-admin">
+                    <li><a href="#get-latest-students" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>Latest Students</span><span class="http-admin text-xs font-bold px-2 py-0.5 rounded-full">GET</span></a></li>
+                    <li><a href="#admin-reset-password" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>Reset Password</span><span class="http-admin text-xs font-bold px-2 py-0.5 rounded-full">POST</span></a></li>
+                     <li><a href="#admin-search-users" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>Search Users</span><span class="http-admin text-xs font-bold px-2 py-0.5 rounded-full">GET</span></a></li>
+                     <li><a href="#admin-get-student-details" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>Student Details</span><span class="http-admin text-xs font-bold px-2 py-0.5 rounded-full">GET</span></a></li>
+                </ul>
+
+                <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-8 mb-3">WEBHOOKS</h2>
+                 <ul id="nav-group-webhooks">
+                    <li><a href="#order-status-webhook" class="sidebar-link flex justify-between items-center text-sm py-2 px-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"><span>Order Status</span><span class="http-webhook text-xs font-bold px-2 py-0.5 rounded-full">WEBHOOK</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Mobile Header -->
+        <header class="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 border-b dark:border-gray-700 z-20">
+            <div class="flex justify-between items-center p-4">
+                <h1 class="text-lg font-bold text-gray-900 dark:text-white">Caseer Academy API</h1>
+                <button id="menu-button" class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 lg:ml-72 p-6 lg:p-10 pt-24 lg:pt-10">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-12">
+                <div class="max-w-3xl">
+                    <!-- Introduction Section -->
+                    <section id="introduction" class="mb-16 scroll-mt-24">
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">API Introduction</h2>
+                        <p>This documentation provides a detailed overview of the custom REST API for the Caseer Academy mobile application. The API is designed to provide a clean and efficient interface for the app to interact with the WordPress backend, which uses Tutor LMS and WooCommerce.</p>
+                        <p class="mt-4 font-semibold">Base URL: <code class="font-normal bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded-md">https://caseer.academy/wp-json/my-app/v1</code></p>
+                    </section>
+
+                    <!-- Authentication Section -->
+                    <section id="authentication" class="mb-16 scroll-mt-24">
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Authentication</h2>
+                        <p>Most endpoints require authentication via a JSON Web Token (JWT). To get a token, send a user's credentials to the JWT plugin endpoint. This token must then be included in the `Authorization` header for all protected requests as a Bearer token.</p>
+                        <div class="mt-8 p-6 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
+                            <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2"><span class="http-post text-sm font-bold px-2 py-1 rounded-md mr-3">POST</span>/token</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Authenticates a user and returns a JWT.</p>
+                            <p class="text-sm font-medium mb-2">FULL URL</p>
+                            <div class="relative">
+                                <pre class="mb-4 !bg-gray-100 dark:!bg-gray-700"><code id="auth-url" class="language-json text-gray-800 dark:text-gray-200">https://caseer.academy/wp-json/jwt-auth/v1/token</code></pre>
+                                <button class="copy-btn absolute top-2 right-2 p-1.5 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500" data-clipboard-target="auth-url">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                </button>
+                            </div>
+                            <p class="text-sm font-medium mb-2">REQUEST BODY (form-data)</p>
+                            <div class="text-sm space-y-1 mb-4">
+                                <p><code class="bg-gray-200 dark:bg-gray-600 px-1.5 py-0.5 rounded">username</code> <span class="text-gray-500 dark:text-gray-400">string, required</span></p>
+                                <p><code class="bg-gray-200 dark:bg-gray-600 px-1.5 py-0.5 rounded">password</code> <span class="text-gray-500 dark:text-gray-400">string, required</span></p>
+                            </div>
+                            <p class="text-sm font-medium mb-2">SUCCESS RESPONSE (200 OK)</p>
+                            <div class="relative">
+                                <pre><code id="auth-resp" class="language-json">{
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "user_email": "student@example.com",
+    "user_nicename": "student",
+    "user_display_name": "John Doe"
+}</code></pre>
+                                <button class="copy-btn absolute top-2 right-2 p-1.5 bg-gray-800 rounded-md hover:bg-gray-700" data-clipboard-target="auth-resp">
+                                    <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Endpoints -->
+                    <div id="endpoint-content">
+                        <!-- Content will be dynamically loaded here by JS -->
+                    </div>
+                </div>
+
+                <!-- Right Code Panel (Sticky) -->
+                <div class="hidden xl:block">
+                    <div id="code-panel-wrapper" class="sticky top-10">
+                        <!-- Content will be dynamically loaded here by JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const endpoints = {
+             'create-user': {
+                title: 'Create User',
+                method: 'POST',
+                path: '/user/create',
+                description: 'Creates a new user account using standard email and password. Requires a secret key to prevent abuse.',
+                headers: [{ name: 'X-Secret-Key', type: 'string', description: 'Your predefined secret API key.' }],
+                body: `{
+    "username": "janedoe",
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "email": "jane.doe@example.com",
+    "password": "a-strong-password"
+}`,
+                response: `{
+    "success": true,
+    "message": "User created successfully. You can now log in.",
+    "user_id": 125
+}`
+            },
+            'request-otp': {
+                title: 'Request OTP',
+                method: 'POST',
+                path: '/user/request-otp',
+                description: 'Requests a one-time password (OTP) to be sent to the user\'s WhatsApp for passwordless login/registration.',
+                headers: [{ name: 'X-Secret-Key', type: 'string', description: 'Your predefined secret API key.' }],
+                body: `{
+    "phone_number": "25261XXXXXXX"
+}`,
+                response: `{
+    "success": true,
+    "message": "An OTP has been sent to your phone number."
+}`
+            },
+            'verify-otp': {
+                title: 'Verify OTP',
+                method: 'POST',
+                path: '/user/verify-otp',
+                description: 'Verifies an OTP. If correct, it creates a new user (if one doesn\'t exist) and returns a JWT for immediate login.',
+                headers: [{ name: 'X-Secret-Key', type: 'string', description: 'Your predefined secret API key.' }],
+                body: `{
+    "phone_number": "25261XXXXXXX",
+    "otp_code": "123456"
+}`,
+                response: `{
+    "success": true,
+    "message": "Login successful.",
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "user_display_name": "John Doe"
+}`
+            },
+            'get-all-courses': {
+                title: 'Get All Courses',
+                method: 'GET',
+                path: '/courses',
+                description: 'Retrieves a list of all published courses available for purchase. This is a public endpoint and does not require authentication.',
+                response: `[
+    {
+        "id": 101,
+        "title": "Introduction to Flutter Development",
+        "thumbnail_url": "https://caseer.academy/wp-content/uploads/course-1.jpg",
+        "price": "50.00"
+    }
+]`
+            },
+            'get-my-courses': {
+                title: 'Get My Courses',
+                method: 'GET',
+                path: '/my-courses',
+                description: 'Retrieves a list of courses the currently authenticated user is enrolled in.',
+                auth: 'Bearer Auth',
+                response: `[
+    {
+        "id": 101,
+        "title": "Introduction to Flutter Development",
+        "thumbnail_url": "https://caseer.academy/wp-content/uploads/course-1.jpg",
+        "progress_percent": 45
+    }
+]`
+            },
+            'get-course-details': {
+                title: 'Get Course Details',
+                method: 'GET',
+                path: '/course/{id}',
+                description: 'Retrieves the detailed curriculum for a specific course. User must be enrolled.',
+                auth: 'Bearer Auth',
+                params: [{ name: 'id', type: 'integer', description: 'The ID of the course to retrieve.' }],
+                response: `{
+    "id": 101,
+    "title": "Introduction to Flutter Development",
+    "full_content": "<p>This is the full course description...</p>",
+    "topics": [
+        {
+            "id": 201,
+            "title": "Topic 1: Getting Started",
+            "lessons": [ { "id": 301, "title": "Lesson 1.1" } ],
+            "quizzes": [ { "id": 401, "title": "Quiz 1" } ]
+        }
+    ]
+}`
+            },
+            'get-lesson-details': {
+                title: 'Get Lesson Details',
+                method: 'GET',
+                path: '/lesson/{id}',
+                description: 'Retrieves the content for a specific lesson. User must be enrolled.',
+                auth: 'Bearer Auth',
+                params: [{ name: 'id', type: 'integer', description: 'The ID of the lesson to retrieve.' }],
+                response: `{
+    "id": 301,
+    "title": "Lesson 1.1: Setting up your environment",
+    "content": "<h1>Welcome!</h1><p>Here is how you set up...</p>",
+    "video": { "source": "youtube", "source_youtube": "dQw4w9WgXcQ" }
+}`
+            },
+            'get-user-profile': {
+                title: 'Get User Profile',
+                method: 'GET',
+                path: '/user/profile',
+                description: 'Retrieves profile information for the authenticated user, including enrolled courses and order history.',
+                auth: 'Bearer Auth',
+                response: `{
+    "display_name": "John Doe",
+    "email": "student@example.com",
+    "enrolled_courses": [
+        {
+            "id": 101,
+            "title": "Introduction to Flutter Development"
+        }
+    ],
+    "order_history": [
+        {
+            "order_id": 123,
+            "date": "2025-08-05",
+            "total": "50.00",
+            "status": "completed"
+        }
+    ]
+}`
+            },
+            'initiate-payment': {
+                title: 'Initiate Payment',
+                method: 'POST',
+                path: '/initiate-payment',
+                description: 'Initiates a payment for a course using the Waafi gateway.',
+                auth: 'Bearer Auth',
+                body: `{
+    "course_id": 102,
+    "payment_phone_number": "61XXXXXXX"
+}`,
+                response: `{
+    "success": true,
+    "message": "Payment successful. You are now enrolled.",
+    "order_id": 124
+}`
+            },
+             'get-latest-students': {
+                title: 'Get Latest Students',
+                method: 'GET',
+                path: '/admin/latest-students',
+                description: 'Retrieves the 10 most recently registered students. Requires the secret admin key for access.',
+                headers: [{ name: 'X-Secret-Key', type: 'string', description: 'Your predefined secret API key.' }],
+                response: `[
+    {
+        "id": 125,
+        "display_name": "Jane Doe",
+        "email": "jane.doe@example.com",
+        "registration_date": "2025-10-11 18:30:00"
+    }
+]`
+            },
+            'admin-reset-password': {
+                title: 'Admin: Reset Password',
+                method: 'POST',
+                path: '/admin/reset-password',
+                description: 'Allows an administrator to reset the password for any user, identified by their email. Requires the secret admin key.',
+                headers: [{ name: 'X-Secret-Key', type: 'string', description: 'Your predefined secret API key.' }],
+                body: `{
+    "email": "user.to.reset@example.com",
+    "new_password": "new-strong-password-123"
+}`,
+                response: `{
+    "success": true,
+    "message": "Password for user.to.reset@example.com has been updated successfully."
+}`
+            },
+            'admin-search-users': {
+                title: 'Admin: Search Users',
+                method: 'GET',
+                path: '/admin/search-users',
+                description: 'Searches for users by username, email, or display name. Requires the secret admin key. The search term should be passed as a query parameter.',
+                headers: [{ name: 'X-Secret-Key', type: 'string', description: 'Your predefined secret API key.' }],
+                queryParams: [{ name: 'term', type: 'string', description: 'The search term to query.' }],
+                response: `[
+    {
+        "id": 125,
+        "display_name": "Jane Doe",
+        "username": "janedoe",
+        "email": "jane.doe@example.com"
+    }
+]`
+            },
+            'admin-get-student-details': {
+                title: 'Admin: Get Student Details',
+                method: 'GET',
+                path: '/admin/student/{id}',
+                description: 'Retrieves a complete profile for a specific student, including courses and order history. Requires the secret admin key.',
+                headers: [{ name: 'X-Secret-Key', type: 'string', description: 'Your predefined secret API key.' }],
+                params: [{ name: 'id', type: 'integer', description: 'The ID of the student to retrieve.' }],
+                response: `{
+    "id": 125,
+    "username": "janedoe",
+    "display_name": "Jane Doe",
+    "email": "jane.doe@example.com",
+    "registration_date": "2025-10-11 18:30:00",
+    "enrolled_courses": [
+        {
+            "id": 101,
+            "title": "Introduction to Flutter Development"
+        }
+    ],
+    "order_history": []
+}`
+            },
+             'order-status-webhook': {
+                title: 'Order Status Webhook',
+                method: 'WEBHOOK',
+                path: '/your-chosen-url',
+                description: 'Your server will send a POST request to a URL you configure in the plugin settings whenever a WooCommerce order status changes. This is not a callable endpoint, but an outgoing push notification from your server.',
+                body: `{
+    "event": "order_status_changed",
+    "order_id": 123,
+    "new_status": "completed",
+    "customer": {
+        "id": 45,
+        "email": "student@example.com"
+    },
+    "items": [
+        { "name": "Introduction to Flutter" }
+    ]
+}`
+            }
+        };
+
+        const endpointContentContainer = document.getElementById('endpoint-content');
+        const codePanelContainer = document.getElementById('code-panel-wrapper');
+
+        function generateEndpointHTML(id, data) {
+            const methodClass = data.method === 'GET' ? 'http-get' : (data.method === 'POST' ? 'http-post' : (data.method === 'WEBHOOK' ? 'http-webhook' : 'http-admin'));
+            const authHTML = data.auth ? `<p class="text-sm font-medium mb-2">AUTHENTICATION</p><div class="text-sm space-y-1 mb-4"><p><code class="bg-gray-200 dark:bg-gray-600 px-1.5 py-0.5 rounded">Authorization</code> <span class="text-gray-500 dark:text-gray-400">Bearer Token, required</span></p></div>` : '';
+            const headersHTML = data.headers ? `
+                <p class="text-sm font-medium mb-2">HEADERS</p>
+                <div class="text-sm space-y-1 mb-4">
+                    ${data.headers.map(h => `<p><code class="bg-gray-200 dark:bg-gray-600 px-1.5 py-0.5 rounded">${h.name}</code> <span class="text-gray-500 dark:text-gray-400">${h.type}, required</span></p>`).join('')}
+                </div>` : '';
+            const queryParamsHTML = data.queryParams ? `
+                <p class="text-sm font-medium mb-2">QUERY PARAMETERS</p>
+                <div class="text-sm space-y-1 mb-4">
+                    ${data.queryParams.map(p => `<p><code class="bg-gray-200 dark:bg-gray-600 px-1.5 py-0.5 rounded">${p.name}</code> <span class="text-gray-500 dark:text-gray-400">${p.type}, required</span> - ${p.description}</p>`).join('')}
+                </div>` : '';
+            const paramsHTML = data.params ? `
+                <p class="text-sm font-medium mb-2">PATH PARAMETERS</p>
+                <div class="text-sm space-y-1 mb-4">
+                    ${data.params.map(p => `<p><code class="bg-gray-200 dark:bg-gray-600 px-1.5 py-0.5 rounded">${p.name}</code> <span class="text-gray-500 dark:text-gray-400">${p.type}, required</span></p>`).join('')}
+                </div>` : '';
+            const bodyHTML = data.body ? `
+                <p class="text-sm font-medium mb-2">${data.method === 'WEBHOOK' ? 'WEBHOOK PAYLOAD (JSON)' : 'REQUEST BODY (JSON)'}</p>
+                <div class="relative"><pre id="${id}-req-body" class="mb-4"><code class="language-json">${data.body.trim()}</code></pre><button class="copy-btn absolute top-2 right-2 p-1.5 bg-gray-800 rounded-md hover:bg-gray-700" data-clipboard-target="${id}-req-body"><svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button></div>` : '';
+            const responseHTML = data.response ? `<p class="text-sm font-medium mb-2">SUCCESS RESPONSE (200 OK)</p><div class="relative"><pre id="${id}-resp-body"><code class="language-json">${data.response.trim()}</code></pre><button class="copy-btn absolute top-2 right-2 p-1.5 bg-gray-800 rounded-md hover:bg-gray-700" data-clipboard-target="${id}-resp-body"><svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button></div>` : '';
+            const fullURL = data.method === 'WEBHOOK' ? data.path : `https://caseer.academy/wp-json/my-app/v1${data.path}`;
+            const urlTitle = data.method === 'WEBHOOK' ? 'EXAMPLE DESTINATION URL' : 'FULL URL';
+
+            return `
+                <section id="${id}" class="mb-16 scroll-mt-24">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">${data.title}</h2>
+                    <p class="mb-6">${data.description}</p>
+                    <div class="p-6 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4"><span class="${methodClass} text-sm font-bold px-2 py-1 rounded-md mr-3">${data.method}</span>${data.path}</h3>
+                        <p class="text-sm font-medium mb-2">${urlTitle}</p>
+                        <div class="relative"><pre class="mb-4 !bg-gray-100 dark:!bg-gray-700"><code id="${id}-url" class="language-json text-gray-800 dark:text-gray-200">${fullURL}</code></pre><button class="copy-btn absolute top-2 right-2 p-1.5 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500" data-clipboard-target="${id}-url"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button></div>
+                        ${authHTML}
+                        ${headersHTML}
+                        ${queryParamsHTML}
+                        ${paramsHTML}
+                        ${bodyHTML}
+                        ${responseHTML}
+                    </div>
+                </section>
+            `;
+        }
+        
+        function generateCodePanelHTML(id, data) {
+            const methodClass = data.method === 'GET' ? 'text-green-400' : (data.method === 'POST' ? 'text-blue-400' : (data.method === 'WEBHOOK' ? 'text-purple-400' : 'text-gray-400'));
+            const headersForCurl = data.headers ? data.headers.map(h => `\\\n  --header '${h.name}: <YOUR_SECRET_KEY>'`).join(' ') : '';
+            const authForCurl = data.auth ? `\\\n  --header 'Authorization: Bearer <YOUR_JWT_TOKEN>'` : '';
+            const bodyForCurl = data.body ? `\\\n  --header 'Content-Type: application/json' \\\n  --data '${data.body.replace(/\n/g, "").replace(/\s+/g, ' ')}'` : '';
+            const queryForCurl = data.queryParams ? `?${data.queryParams[0].name}=<SEARCH_TERM>` : '';
+            
+            const requestSample = data.method !== 'WEBHOOK' ? `
+                 <h4 class="text-sm font-semibold text-gray-300 mb-2">Request Sample (cURL)</h4>
+                 <div class="relative"><pre id="${id}-curl"><code class="language-bash">curl --request ${data.method} \\
+  --url https://caseer.academy/wp-json/my-app/v1${data.path}${queryForCurl} ${authForCurl} ${headersForCurl} ${bodyForCurl}</code></pre><button class="copy-btn absolute top-2 right-2 p-1.5 bg-gray-800 rounded-md hover:bg-gray-700" data-clipboard-target="${id}-curl"><svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button></div>` : '';
+            const responseTitle = data.method === 'WEBHOOK' ? 'Webhook Payload Example' : 'Response Example';
+            const responseBody = data.method === 'WEBHOOK' ? data.body : data.response;
+
+            return `
+                <div class="code-panel rounded-lg text-white">
+                    <div class="p-4 border-b border-gray-700">
+                        <p class="text-sm"><span class="font-bold ${methodClass}">${data.method}</span> <span class="text-gray-300">${data.path}</span></p>
+                    </div>
+                    <div class="p-4">
+                        ${requestSample}
+                    </div>
+                    <div class="p-4 border-t border-gray-700">
+                        <h4 class="text-sm font-semibold text-gray-300 mb-2">${responseTitle}</h4>
+                        <div class="relative"><pre id="${id}-resp-panel"><code class="language-json">${responseBody.trim()}</code></pre><button class="copy-btn absolute top-2 right-2 p-1.5 bg-gray-800 rounded-md hover:bg-gray-700" data-clipboard-target="${id}-resp-panel"><svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function populateContent() {
+             endpointContentContainer.innerHTML = ''; // Clear existing
+             const sections = [
+                { id: 'create-user', group: 'auth'}, { id: 'request-otp', group: 'auth'}, { id: 'verify-otp', group: 'auth'},
+                { id: 'get-all-courses', group: 'endpoints'}, { id: 'get-my-courses', group: 'endpoints'}, { id: 'get-course-details', group: 'endpoints'},
+                { id: 'get-lesson-details', group: 'endpoints'}, { id: 'get-user-profile', group: 'endpoints'}, { id: 'initiate-payment', group: 'endpoints'},
+                { id: 'get-latest-students', group: 'admin'}, { id: 'admin-reset-password', group: 'admin'}, { id: 'admin-search-users', group: 'admin' }, { id: 'admin-get-student-details', group: 'admin' },
+                { id: 'order-status-webhook', group: 'webhooks'}
+             ];
+             sections.forEach(section => {
+                 if(endpoints[section.id]) {
+                    endpointContentContainer.innerHTML += generateEndpointHTML(section.id, endpoints[section.id]);
+                 }
+             });
+        }
+        
+        // --- EVENT LISTENERS & DYNAMIC FUNCTIONALITY ---
+        document.addEventListener('DOMContentLoaded', function () {
+             populateContent();
+            const sidebar = document.getElementById('sidebar');
+            const menuButton = document.getElementById('menu-button');
+            const searchInput = document.getElementById('search-input');
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+
+            // Mobile menu toggle
+            menuButton.addEventListener('click', () => sidebar.classList.toggle('hidden'));
+            
+            // Search functionality
+            searchInput.addEventListener('keyup', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                document.querySelectorAll('#sidebar-nav ul li').forEach(li => {
+                    const text = li.textContent.toLowerCase();
+                    li.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+
+            // Dark Mode
+            const applyDarkMode = (isDark) => {
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                }
+            };
+
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('darkMode', isDark);
+                applyDarkMode(isDark);
+            });
+
+            if (localStorage.getItem('darkMode') === 'true' || (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('darkMode'))) {
+                applyDarkMode(true);
+            }
+
+            // Copy to clipboard
+            document.body.addEventListener('click', function(e) {
+                const copyBtn = e.target.closest('.copy-btn');
+                if (copyBtn) {
+                    const targetId = copyBtn.dataset.clipboardTarget;
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        const textToCopy = targetElement.innerText;
+                        
+                        if (navigator.clipboard && window.isSecureContext) {
+                            navigator.clipboard.writeText(textToCopy);
+                        } else {
+                            const textArea = document.createElement("textarea");
+                            textArea.value = textToCopy;
+                            textArea.style.position = "absolute";
+                            textArea.style.left = "-9999px";
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            try {
+                                document.execCommand('copy');
+                            } catch (err) {
+                                console.error('Fallback copy failed', err);
+                            }
+                            document.body.removeChild(textArea);
+                        }
+
+                        const originalIcon = copyBtn.innerHTML;
+                        copyBtn.innerHTML = `<svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+                        setTimeout(() => { copyBtn.innerHTML = originalIcon; }, 1500);
+                    }
+                }
+            });
+
+            // Intersection Observer for active links and code panel
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.sidebar-link');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.id;
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === id) {
+                                link.classList.add('active');
+                            }
+                        });
+                        if (endpoints[id]) {
+                            codePanelContainer.innerHTML = generateCodePanelHTML(id, endpoints[id]);
+                        } else if (id === 'authentication' || id === 'introduction') {
+                             codePanelContainer.innerHTML = generateCodePanelHTML('get-all-courses', endpoints['get-all-courses']);
+                        }
+                    }
+                });
+            }, { rootMargin: '-40% 0px -60% 0px' });
+
+            sections.forEach(section => observer.observe(section));
+            
+            // Set initial state
+            const initialId = window.location.hash ? window.location.hash.substring(1) : 'introduction';
+            if (endpoints[initialId]) {
+                codePanelContainer.innerHTML = generateCodePanelHTML(initialId, endpoints[initialId]);
+            } else {
+                 codePanelContainer.innerHTML = generateCodePanelHTML('get-all-courses', endpoints['get-all-courses']);
+            }
+        });
+    </script>
+</body>
+</html>
+
