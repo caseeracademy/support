@@ -2,11 +2,11 @@
     <div class="space-y-6">
         {{-- Summary Stats --}}
         @php
-            $startDate = $this->start_date ? \Carbon\Carbon::parse($this->start_date)->format('M j, Y') : 'N/A';
-            $endDate = $this->end_date ? \Carbon\Carbon::parse($this->end_date)->format('M j, Y') : 'N/A';
             $query = $this->getFilteredExpensesQuery();
             $total = $query->sum('amount');
             $count = $query->count();
+            $startDate = $this->start_date ? \Carbon\Carbon::parse($this->start_date)->format('M j, Y') : 'All Time';
+            $endDate = $this->end_date ? \Carbon\Carbon::parse($this->end_date)->format('M j, Y') : 'All Time';
         @endphp
         <x-filament::section class="bg-red-50 border-red-200">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">

@@ -240,9 +240,19 @@ class TicketResource extends Resource
                             ->step(0.01)
                             ->default(fn (Ticket $record) => $record->remaining_amount)
                             ->required(),
+
+                        Forms\Components\Select::make('payment_method_id')
+                            ->label('Deposit To Account')
+                            ->options(\App\Models\PaymentMethod::where('is_active', true)->pluck('name', 'id'))
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->default(fn () => \App\Models\PaymentMethod::where('is_active', true)->where('slug', 'business-bank-account')->value('id')
+                                ?? \App\Models\PaymentMethod::where('is_active', true)->value('id'))
+                            ->helperText('Select which account this payment will be deposited to'),
                     ])
                     ->action(function (Ticket $record, array $data): void {
-                        $record->addPayment($data['amount'], auth()->user());
+                        $record->addPayment($data['amount'], auth()->user(), $data['payment_method_id']);
                     })
                     ->requiresConfirmation()
                     ->successNotificationTitle('Payment approved successfully'),

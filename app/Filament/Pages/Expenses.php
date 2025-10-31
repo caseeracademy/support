@@ -54,8 +54,8 @@ class Expenses extends Page implements HasForms, HasTable
 
     public function mount(): void
     {
-        $this->start_date = Carbon::now()->startOfMonth()->format('Y-m-d');
-        $this->end_date = Carbon::now()->endOfMonth()->format('Y-m-d');
+        // Don't set default dates - show all expenses by default
+        // User can filter by date if needed
     }
 
     public static function canAccess(): bool
@@ -78,19 +78,17 @@ class Expenses extends Page implements HasForms, HasTable
                         Grid::make(2)
                             ->schema([
                                 DatePicker::make('start_date')
-                                    ->label('Start Date')
-                                    ->required()
-                                    ->default(Carbon::now()->startOfMonth())
+                                    ->label('Start Date (Optional)')
                                     ->maxDate(now())
-                                    ->reactive(),
+                                    ->reactive()
+                                    ->helperText('Leave empty to show all expenses'),
 
                                 DatePicker::make('end_date')
-                                    ->label('End Date')
-                                    ->required()
-                                    ->default(Carbon::now()->endOfMonth())
+                                    ->label('End Date (Optional)')
                                     ->afterOrEqual('start_date')
                                     ->maxDate(now())
-                                    ->reactive(),
+                                    ->reactive()
+                                    ->helperText('Leave empty to show all expenses'),
                             ]),
 
                         Grid::make(2)
@@ -249,24 +247,42 @@ class Expenses extends Page implements HasForms, HasTable
 
     protected function getFilteredExpensesQuery(): Builder
     {
-        $startDate = $this->start_date ? Carbon::parse($this->start_date) : Carbon::now()->startOfMonth();
-        $endDate = $this->end_date ? Carbon::parse($this->end_date) : Carbon::now()->endOfMonth();
-
-        return Transaction::query()
+        $query = Transaction::query()
             ->where('type', 'expense')
-            ->whereBetween('transaction_date', [$startDate->startOfDay(), $endDate->endOfDay()])
-            ->when($this->category_id, fn ($query) => $query->where('category_id', $this->category_id))
-            ->when($this->payment_method_id, fn ($query) => $query->where('payment_method_id', $this->payment_method_id))
+            ->when($this->start_date && $this->end_date, function ($q) {
+                $startDate = Carbon::parse($this->start_date)->startOfDay();
+                $endDate = Carbon::parse($this->end_date)->endOfDay();
+
+                return $q->whereBetween('transaction_date', [$startDate, $endDate]);
+            })
+            ->when($this->category_id, fn ($q) => $q->where('category_id', $this->category_id))
+            ->when($this->payment_method_id, fn ($q) => $q->where('payment_method_id', $this->payment_method_id))
             ->with(['category', 'paymentMethod']);
+
+        return $query;
     }
 
     public function exportToPdf()
     {
         try {
-            $startDate = $this->start_date ? Carbon::parse($this->start_date) : Carbon::now()->startOfMonth();
-            $endDate = $this->end_date ? Carbon::parse($this->end_date) : Carbon::now()->endOfMonth();
-
             $expenses = $this->getFilteredExpensesQuery()->get();
+
+            if ($expenses->isEmpty()) {
+                Notification::make()
+                    ->title('No Expenses Found')
+                    ->body('There are no expenses to export with the current filters.')
+                    ->warning()
+                    ->send();
+
+                return;
+            }
+
+            $startDate = $this->start_date
+                ? Carbon::parse($this->start_date)
+                : ($expenses->min('transaction_date') ? Carbon::parse($expenses->min('transaction_date')) : Carbon::now()->startOfMonth());
+            $endDate = $this->end_date
+                ? Carbon::parse($this->end_date)
+                : ($expenses->max('transaction_date') ? Carbon::parse($expenses->max('transaction_date')) : Carbon::now()->endOfMonth());
 
             $totalAmount = $expenses->sum('amount');
 
@@ -293,10 +309,16 @@ class Expenses extends Page implements HasForms, HasTable
             return $pdf->download($filename);
 
         } catch (\Exception $e) {
+            $errorMessage = $e->getMessage();
+            if (str_contains($errorMessage, 'puppeteer') || str_contains($errorMessage, 'Cannot find module')) {
+                $errorMessage = 'PDF export requires Puppeteer. Please install it on the server: npm install -g puppeteer';
+            }
+
             Notification::make()
                 ->title('PDF Export Failed')
-                ->body('Error: '.$e->getMessage())
+                ->body($errorMessage)
                 ->danger()
+                ->duration(10000)
                 ->send();
         }
     }

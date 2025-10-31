@@ -138,7 +138,7 @@ class Ticket extends Model
         ]);
     }
 
-    public function addPayment(float $amount, User $user): void
+    public function addPayment(float $amount, User $user, ?int $paymentMethodId = null): void
     {
         $newPaidAmount = ($this->paid_amount ?? 0) + $amount;
 
@@ -154,10 +154,10 @@ class Ticket extends Model
         }
 
         // Create a transaction record for this payment
-        $this->createPaymentTransaction($amount, $user);
+        $this->createPaymentTransaction($amount, $user, $paymentMethodId);
     }
 
-    public function createPaymentTransaction(float $amount, User $user): Transaction
+    public function createPaymentTransaction(float $amount, User $user, ?int $paymentMethodId = null): Transaction
     {
         // Get the course sales category (or first income category)
         $category = \App\Models\Category::where('type', 'income')
@@ -165,8 +165,10 @@ class Ticket extends Model
             ->first()
             ?? \App\Models\Category::where('type', 'income')->first();
 
-        // Get default payment method (or first available)
-        $paymentMethod = \App\Models\PaymentMethod::where('is_active', true)->first();
+        // Use provided payment method or get default
+        $paymentMethod = $paymentMethodId
+            ? \App\Models\PaymentMethod::find($paymentMethodId)
+            : \App\Models\PaymentMethod::where('is_active', true)->first();
 
         if (! $category || ! $paymentMethod) {
             throw new \Exception('No active category or payment method found. Please create them first.');
