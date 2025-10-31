@@ -31,7 +31,9 @@ Route::post('/admin/login', function () {
     return back()->withErrors([
         'email' => 'The provided credentials do not match our records.',
     ])->onlyInput('email');
-})->middleware('web');
+})
+    ->middleware('web')
+    ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class);
 
 // Financial Report PDF Downloads (protected by auth middleware)
 Route::middleware(['auth'])->prefix('reports')->name('financial.reports.')->group(function () {
