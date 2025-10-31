@@ -30,17 +30,35 @@ class Settings extends Page implements HasForms
 
     public function mount(): void
     {
-        $envPath = base_path('.env');
-        $envContent = File::get($envPath);
+        try {
+            $envPath = base_path('.env');
 
-        // Extract current values from .env
-        preg_match('/CASEER_API_URL=(.*)/', $envContent, $urlMatch);
-        preg_match('/CASEER_API_SECRET=(.*)/', $envContent, $secretMatch);
+            if (! File::exists($envPath)) {
+                $this->form->fill([
+                    'caseer_api_url' => 'https://caseer.academy/wp-json/my-app/v1',
+                    'caseer_api_secret' => '',
+                ]);
 
-        $this->form->fill([
-            'caseer_api_url' => $urlMatch[1] ?? 'https://caseer.academy/wp-json/my-app/v1',
-            'caseer_api_secret' => $secretMatch[1] ?? '',
-        ]);
+                return;
+            }
+
+            $envContent = File::get($envPath);
+
+            // Extract current values from .env
+            preg_match('/CASEER_API_URL=(.*)/', $envContent, $urlMatch);
+            preg_match('/CASEER_API_SECRET=(.*)/', $envContent, $secretMatch);
+
+            $this->form->fill([
+                'caseer_api_url' => $urlMatch[1] ?? 'https://caseer.academy/wp-json/my-app/v1',
+                'caseer_api_secret' => $secretMatch[1] ?? '',
+            ]);
+        } catch (\Exception $e) {
+            // If we can't read .env, use defaults
+            $this->form->fill([
+                'caseer_api_url' => 'https://caseer.academy/wp-json/my-app/v1',
+                'caseer_api_secret' => '',
+            ]);
+        }
     }
 
     public function form(Form $form): Form
@@ -114,42 +132,66 @@ class Settings extends Page implements HasForms
     {
         $data = $this->form->getState();
 
-        $envPath = base_path('.env');
-        $envContent = File::get($envPath);
+        try {
+            $envPath = base_path('.env');
 
-        // Update or add CASEER_API_URL
-        if (preg_match('/CASEER_API_URL=/', $envContent)) {
-            $envContent = preg_replace(
-                '/CASEER_API_URL=.*/',
-                'CASEER_API_URL='.$data['caseer_api_url'],
-                $envContent
-            );
-        } else {
-            $envContent .= "\nCASEER_API_URL=".$data['caseer_api_url'];
+            // Check if file exists and is readable
+            if (! File::exists($envPath)) {
+                throw new \Exception('The .env file does not exist at: '.$envPath);
+            }
+
+            if (! File::isReadable($envPath)) {
+                throw new \Exception('The .env file is not readable. Please check file permissions.');
+            }
+
+            $envContent = File::get($envPath);
+
+            // Update or add CASEER_API_URL
+            if (preg_match('/CASEER_API_URL=/', $envContent)) {
+                $envContent = preg_replace(
+                    '/CASEER_API_URL=.*/',
+                    'CASEER_API_URL='.$data['caseer_api_url'],
+                    $envContent
+                );
+            } else {
+                $envContent .= "\nCASEER_API_URL=".$data['caseer_api_url'];
+            }
+
+            // Update or add CASEER_API_SECRET
+            if (preg_match('/CASEER_API_SECRET=/', $envContent)) {
+                $envContent = preg_replace(
+                    '/CASEER_API_SECRET=.*/',
+                    'CASEER_API_SECRET='.$data['caseer_api_secret'],
+                    $envContent
+                );
+            } else {
+                $envContent .= "\nCASEER_API_SECRET=".$data['caseer_api_secret'];
+            }
+
+            // Check if file is writable before attempting to write
+            if (! File::isWritable($envPath)) {
+                throw new \Exception('The .env file is not writable. Please fix permissions on your server by running: sudo chmod 664 '.$envPath.' && sudo chown www-data:www-data '.$envPath);
+            }
+
+            File::put($envPath, $envContent);
+
+            // Clear config cache
+            \Artisan::call('config:clear');
+
+            Notification::make()
+                ->title('Settings saved successfully')
+                ->body('API credentials have been updated. Use "Test Connection" to verify.')
+                ->success()
+                ->duration(8000)
+                ->send();
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Failed to save settings')
+                ->body('Error: '.$e->getMessage().' Please contact your server administrator or fix file permissions.')
+                ->danger()
+                ->duration(15000)
+                ->send();
         }
-
-        // Update or add CASEER_API_SECRET
-        if (preg_match('/CASEER_API_SECRET=/', $envContent)) {
-            $envContent = preg_replace(
-                '/CASEER_API_SECRET=.*/',
-                'CASEER_API_SECRET='.$data['caseer_api_secret'],
-                $envContent
-            );
-        } else {
-            $envContent .= "\nCASEER_API_SECRET=".$data['caseer_api_secret'];
-        }
-
-        File::put($envPath, $envContent);
-
-        // Clear config cache
-        \Artisan::call('config:clear');
-
-        Notification::make()
-            ->title('Settings saved successfully')
-            ->body('API credentials have been updated. Use "Test Connection" to verify.')
-            ->success()
-            ->duration(8000)
-            ->send();
     }
 
     public function testConnection(): void
