@@ -243,12 +243,30 @@ class TicketResource extends Resource
 
                         Forms\Components\Select::make('payment_method_id')
                             ->label('Deposit To Account')
-                            ->options(\App\Models\PaymentMethod::where('is_active', true)->pluck('name', 'id'))
+                            ->options(function () {
+                                return \App\Models\PaymentMethod::where('is_active', true)
+                                    ->where(function ($query) {
+                                        $query->where('transaction_type', 'income')
+                                            ->orWhere('transaction_type', 'both');
+                                    })
+                                    ->pluck('name', 'id');
+                            })
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->default(fn () => \App\Models\PaymentMethod::where('is_active', true)->where('slug', 'business-bank-account')->value('id')
-                                ?? \App\Models\PaymentMethod::where('is_active', true)->value('id'))
+                            ->default(fn () => \App\Models\PaymentMethod::where('is_active', true)
+                                ->where(function ($query) {
+                                    $query->where('transaction_type', 'income')
+                                        ->orWhere('transaction_type', 'both');
+                                })
+                                ->where('slug', 'business-bank-account')
+                                ->value('id')
+                                ?? \App\Models\PaymentMethod::where('is_active', true)
+                                    ->where(function ($query) {
+                                        $query->where('transaction_type', 'income')
+                                            ->orWhere('transaction_type', 'both');
+                                    })
+                                    ->value('id'))
                             ->helperText('Select which account this payment will be deposited to'),
                     ])
                     ->action(function (Ticket $record, array $data): void {

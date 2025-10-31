@@ -17,6 +17,7 @@ class PaymentMethod extends Model
         'slug',
         'description',
         'type',
+        'transaction_type',
         'metadata',
         'is_active',
     ];

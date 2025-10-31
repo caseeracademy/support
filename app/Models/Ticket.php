@@ -159,19 +159,30 @@ class Ticket extends Model
 
     public function createPaymentTransaction(float $amount, User $user, ?int $paymentMethodId = null): Transaction
     {
-        // Get the course sales category (or first income category)
+        // Get the course sales category (or first income category, or create one)
         $category = \App\Models\Category::where('type', 'income')
             ->where('slug', 'course-sales')
             ->first()
             ?? \App\Models\Category::where('type', 'income')->first();
+
+        // If no income category exists, create a default one
+        if (! $category) {
+            $category = \App\Models\Category::create([
+                'name' => 'Course Sales',
+                'slug' => 'course-sales',
+                'type' => 'income',
+                'color' => '#10B981',
+                'is_active' => true,
+            ]);
+        }
 
         // Use provided payment method or get default
         $paymentMethod = $paymentMethodId
             ? \App\Models\PaymentMethod::find($paymentMethodId)
             : \App\Models\PaymentMethod::where('is_active', true)->first();
 
-        if (! $category || ! $paymentMethod) {
-            throw new \Exception('No active category or payment method found. Please create them first.');
+        if (! $paymentMethod) {
+            throw new \Exception('No active payment method found. Please create at least one payment method/account in the Accounts section.');
         }
 
         return Transaction::create([
