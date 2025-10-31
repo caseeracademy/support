@@ -90,6 +90,12 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
+# Ensure Livewire routes are registered (clear route cache and rebuild)
+echo ""
+echo "🔧 Ensuring Livewire routes are available..."
+php artisan route:clear
+php artisan route:cache
+
 # Run database migrations
 echo ""
 echo "🗄️  Running database migrations..."
@@ -99,6 +105,11 @@ php artisan migrate --force
 echo ""
 echo "⚡ Optimizing Filament..."
 php artisan filament:optimize
+
+# Publish Livewire assets to ensure they're available
+echo ""
+echo "📦 Publishing Livewire assets..."
+php artisan vendor:publish --tag=livewire:assets --force || echo "⚠️  Livewire assets publish failed (might already be published)"
 
 # Set proper permissions
 echo ""
