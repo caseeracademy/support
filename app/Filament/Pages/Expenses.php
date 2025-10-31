@@ -30,6 +30,8 @@ class Expenses extends Page implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    protected static ?string $slug = 'expenses';
+
     protected static ?string $navigationIcon = 'heroicon-o-arrow-trending-down';
 
     protected static ?string $navigationGroup = 'Finance';
