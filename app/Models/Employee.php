@@ -236,8 +236,15 @@ class Employee extends Model
             $envPath = base_path('.env');
             if (\Illuminate\Support\Facades\File::exists($envPath)) {
                 $envContent = \Illuminate\Support\Facades\File::get($envPath);
-                if (preg_match('/DEPARTMENTS=(.*)/', $envContent, $match)) {
-                    $fromSettings = array_map('trim', explode(',', $match[1]));
+                if (preg_match('/^DEPARTMENTS=(.*?)(?:\r?\n|$)/m', $envContent, $match)) {
+                    $raw = trim($match[1]);
+                    // Remove surrounding quotes if present
+                    if (preg_match('/^["\'](.+)["\']$/', $raw, $quoteMatch)) {
+                        $raw = $quoteMatch[1];
+                    }
+                    // Unescape quotes
+                    $raw = str_replace('\\"', '"', $raw);
+                    $fromSettings = array_map('trim', explode(',', $raw));
                     $fromSettings = array_filter($fromSettings);
                 }
             }
@@ -263,8 +270,15 @@ class Employee extends Model
             $envPath = base_path('.env');
             if (\Illuminate\Support\Facades\File::exists($envPath)) {
                 $envContent = \Illuminate\Support\Facades\File::get($envPath);
-                if (preg_match('/POSITIONS=(.*)/', $envContent, $match)) {
-                    $fromSettings = array_map('trim', explode(',', $match[1]));
+                if (preg_match('/^POSITIONS=(.*?)(?:\r?\n|$)/m', $envContent, $match)) {
+                    $raw = trim($match[1]);
+                    // Remove surrounding quotes if present
+                    if (preg_match('/^["\'](.+)["\']$/', $raw, $quoteMatch)) {
+                        $raw = $quoteMatch[1];
+                    }
+                    // Unescape quotes
+                    $raw = str_replace('\\"', '"', $raw);
+                    $fromSettings = array_map('trim', explode(',', $raw));
                     $fromSettings = array_filter($fromSettings);
                 }
             }

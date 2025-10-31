@@ -50,14 +50,20 @@ class Settings extends Page implements HasForms
             // Extract current values from .env
             preg_match('/CASEER_API_URL=(.*)/', $envContent, $urlMatch);
             preg_match('/CASEER_API_SECRET=(.*)/', $envContent, $secretMatch);
-            preg_match('/^DEPARTMENTS=(.*)$/m', $envContent, $departmentsMatch);
-            preg_match('/^POSITIONS=(.*)$/m', $envContent, $positionsMatch);
+            // Match DEPARTMENTS and POSITIONS lines (handles both quoted and unquoted)
+            preg_match('/^DEPARTMENTS=(.*?)(?:\r?\n|$)/m', $envContent, $departmentsMatch);
+            preg_match('/^POSITIONS=(.*?)(?:\r?\n|$)/m', $envContent, $positionsMatch);
 
             // Parse departments and positions (comma-separated) and convert to repeater format
             $departments = [];
             if (! empty($departmentsMatch[1])) {
                 $raw = trim($departmentsMatch[1]);
-                $raw = trim($raw, "\"' ");
+                // Remove surrounding quotes if present
+                if (preg_match('/^["\'](.+)["\']$/', $raw, $quoteMatch)) {
+                    $raw = $quoteMatch[1];
+                }
+                // Unescape quotes
+                $raw = str_replace('\\"', '"', $raw);
                 $deptArray = array_map('trim', explode(',', $raw));
                 $deptArray = array_filter($deptArray);
                 $departments = array_map(fn ($name) => ['name' => $name], $deptArray);
@@ -66,7 +72,12 @@ class Settings extends Page implements HasForms
             $positions = [];
             if (! empty($positionsMatch[1])) {
                 $raw = trim($positionsMatch[1]);
-                $raw = trim($raw, "\"' ");
+                // Remove surrounding quotes if present
+                if (preg_match('/^["\'](.+)["\']$/', $raw, $quoteMatch)) {
+                    $raw = $quoteMatch[1];
+                }
+                // Unescape quotes
+                $raw = str_replace('\\"', '"', $raw);
                 $posArray = array_map('trim', explode(',', $raw));
                 $posArray = array_filter($posArray);
                 $positions = array_map(fn ($name) => ['name' => $name], $posArray);
