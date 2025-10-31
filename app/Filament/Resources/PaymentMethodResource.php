@@ -16,6 +16,14 @@ class PaymentMethodResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Finance';
+
+    protected static ?string $navigationLabel = 'Accounts';
+
+    protected static ?int $navigationSort = 4;
+
+    protected static ?string $pluralModelLabel = 'Accounts';
+
     public static function form(Form $form): Form
     {
         return $form
