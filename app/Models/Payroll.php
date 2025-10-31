@@ -198,6 +198,11 @@ class Payroll extends Model
 
     public function createPaymentTransaction(): Transaction
     {
+        // Choose a sensible default payment method (prefer business bank account, fallback to cash, then any)
+        $paymentMethodId = PaymentMethod::where('slug', 'business-bank-account')->value('id')
+            ?? PaymentMethod::where('slug', 'cash')->value('id')
+            ?? PaymentMethod::query()->value('id');
+
         $transaction = Transaction::create([
             'type' => 'expense',
             'amount' => $this->net_pay,
@@ -209,6 +214,7 @@ class Payroll extends Model
                 ['name' => 'Payroll', 'type' => 'expense'],
                 ['color' => '#EF4444', 'is_active' => true]
             )->id,
+            'payment_method_id' => $paymentMethodId,
             'status' => 'completed',
             'processed_at' => now(),
             'created_by' => \Illuminate\Support\Facades\Auth::id(),
