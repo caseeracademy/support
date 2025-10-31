@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -37,6 +38,8 @@ class Settings extends Page implements HasForms
                 $this->form->fill([
                     'caseer_api_url' => 'https://caseer.academy/wp-json/my-app/v1',
                     'caseer_api_secret' => '',
+                    'departments' => [],
+                    'positions' => [],
                 ]);
 
                 return;
@@ -47,16 +50,37 @@ class Settings extends Page implements HasForms
             // Extract current values from .env
             preg_match('/CASEER_API_URL=(.*)/', $envContent, $urlMatch);
             preg_match('/CASEER_API_SECRET=(.*)/', $envContent, $secretMatch);
+            preg_match('/DEPARTMENTS=(.*)/', $envContent, $departmentsMatch);
+            preg_match('/POSITIONS=(.*)/', $envContent, $positionsMatch);
+
+            // Parse departments and positions (comma-separated) and convert to repeater format
+            $departments = [];
+            if (! empty($departmentsMatch[1])) {
+                $deptArray = array_map('trim', explode(',', $departmentsMatch[1]));
+                $deptArray = array_filter($deptArray);
+                $departments = array_map(fn ($name) => ['name' => $name], $deptArray);
+            }
+
+            $positions = [];
+            if (! empty($positionsMatch[1])) {
+                $posArray = array_map('trim', explode(',', $positionsMatch[1]));
+                $posArray = array_filter($posArray);
+                $positions = array_map(fn ($name) => ['name' => $name], $posArray);
+            }
 
             $this->form->fill([
                 'caseer_api_url' => $urlMatch[1] ?? 'https://caseer.academy/wp-json/my-app/v1',
                 'caseer_api_secret' => $secretMatch[1] ?? '',
+                'departments' => $departments,
+                'positions' => $positions,
             ]);
         } catch (\Exception $e) {
             // If we can't read .env, use defaults
             $this->form->fill([
                 'caseer_api_url' => 'https://caseer.academy/wp-json/my-app/v1',
                 'caseer_api_secret' => '',
+                'departments' => [],
+                'positions' => [],
             ]);
         }
     }
@@ -83,6 +107,40 @@ class Settings extends Page implements HasForms
                             ->revealable()
                             ->required()
                             ->helperText('The X-Secret-Key header value for API authentication'),
+                    ]),
+
+                Section::make('Employee Settings')
+                    ->description('Manage departments and positions available for employees.')
+                    ->schema([
+                        Repeater::make('departments')
+                            ->label('Departments')
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Department Name')
+                                    ->required()
+                                    ->placeholder('Engineering, Marketing, Sales, etc.')
+                                    ->maxLength(255),
+                            ])
+                            ->defaultItems(1)
+                            ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+                            ->collapsible()
+                            ->reorderableWithButtons()
+                            ->helperText('Add all departments available in your organization. These will appear as suggestions when creating employees.'),
+
+                        Repeater::make('positions')
+                            ->label('Positions')
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Position Name')
+                                    ->required()
+                                    ->placeholder('Software Engineer, Manager, etc.')
+                                    ->maxLength(255),
+                            ])
+                            ->defaultItems(1)
+                            ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+                            ->collapsible()
+                            ->reorderableWithButtons()
+                            ->helperText('Add all job positions available in your organization. These will appear as suggestions when creating employees.'),
                     ]),
 
                 Section::make('WooCommerce Webhook Setup')
@@ -168,6 +226,42 @@ class Settings extends Page implements HasForms
                 $envContent .= "\nCASEER_API_SECRET=".$data['caseer_api_secret'];
             }
 
+            // Handle departments (from repeater array)
+            $departments = [];
+            if (! empty($data['departments']) && is_array($data['departments'])) {
+                $departments = array_map(fn ($item) => $item['name'] ?? '', $data['departments']);
+                $departments = array_filter($departments);
+            }
+            $departmentsString = implode(',', $departments);
+
+            if (preg_match('/DEPARTMENTS=/', $envContent)) {
+                $envContent = preg_replace(
+                    '/DEPARTMENTS=.*/',
+                    'DEPARTMENTS='.$departmentsString,
+                    $envContent
+                );
+            } else {
+                $envContent .= "\nDEPARTMENTS=".$departmentsString;
+            }
+
+            // Handle positions (from repeater array)
+            $positions = [];
+            if (! empty($data['positions']) && is_array($data['positions'])) {
+                $positions = array_map(fn ($item) => $item['name'] ?? '', $data['positions']);
+                $positions = array_filter($positions);
+            }
+            $positionsString = implode(',', $positions);
+
+            if (preg_match('/POSITIONS=/', $envContent)) {
+                $envContent = preg_replace(
+                    '/POSITIONS=.*/',
+                    'POSITIONS='.$positionsString,
+                    $envContent
+                );
+            } else {
+                $envContent .= "\nPOSITIONS=".$positionsString;
+            }
+
             // Check if file is writable before attempting to write
             if (! File::isWritable($envPath)) {
                 throw new \Exception('The .env file is not writable. Please fix permissions on your server by running: sudo chmod 664 '.$envPath.' && sudo chown www-data:www-data '.$envPath);
@@ -180,7 +274,7 @@ class Settings extends Page implements HasForms
 
             Notification::make()
                 ->title('Settings saved successfully')
-                ->body('API credentials have been updated. Use "Test Connection" to verify.')
+                ->body('All settings including departments and positions have been updated.')
                 ->success()
                 ->duration(8000)
                 ->send();

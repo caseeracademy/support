@@ -75,7 +75,7 @@ class Employee extends Model
 
     public function manager(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'reports_to');
+        return $this->belongsTo(User::class, 'reports_to');
     }
 
     public function subordinates(): HasMany
@@ -228,11 +228,55 @@ class Employee extends Model
 
     public static function getDepartments(): array
     {
-        return static::distinct()->pluck('department')->filter()->sort()->values()->toArray();
+        $fromEmployees = static::distinct()->pluck('department')->filter()->toArray();
+        $fromSettings = [];
+
+        // Get departments from .env settings
+        try {
+            $envPath = base_path('.env');
+            if (\Illuminate\Support\Facades\File::exists($envPath)) {
+                $envContent = \Illuminate\Support\Facades\File::get($envPath);
+                if (preg_match('/DEPARTMENTS=(.*)/', $envContent, $match)) {
+                    $fromSettings = array_map('trim', explode(',', $match[1]));
+                    $fromSettings = array_filter($fromSettings);
+                }
+            }
+        } catch (\Exception $e) {
+            // Ignore errors reading .env
+        }
+
+        return collect(array_merge($fromEmployees, $fromSettings))
+            ->unique()
+            ->filter()
+            ->sort()
+            ->values()
+            ->toArray();
     }
 
     public static function getPositions(): array
     {
-        return static::distinct()->pluck('position')->filter()->sort()->values()->toArray();
+        $fromEmployees = static::distinct()->pluck('position')->filter()->toArray();
+        $fromSettings = [];
+
+        // Get positions from .env settings
+        try {
+            $envPath = base_path('.env');
+            if (\Illuminate\Support\Facades\File::exists($envPath)) {
+                $envContent = \Illuminate\Support\Facades\File::get($envPath);
+                if (preg_match('/POSITIONS=(.*)/', $envContent, $match)) {
+                    $fromSettings = array_map('trim', explode(',', $match[1]));
+                    $fromSettings = array_filter($fromSettings);
+                }
+            }
+        } catch (\Exception $e) {
+            // Ignore errors reading .env
+        }
+
+        return collect(array_merge($fromEmployees, $fromSettings))
+            ->unique()
+            ->filter()
+            ->sort()
+            ->values()
+            ->toArray();
     }
 }

@@ -104,14 +104,16 @@ class EmployeeResource extends Resource
                         Forms\Components\Select::make('reports_to')
                             ->label('Reports To')
                             ->options(function () {
-                                return Employee::active()
+                                return \App\Models\User::whereHas('roles', function ($query) {
+                                    $query->where('name', 'admin');
+                                })
                                     ->get()
-                                    ->mapWithKeys(fn ($employee) => [$employee->id => "{$employee->full_name} - {$employee->position}"])
+                                    ->mapWithKeys(fn ($user) => [$user->id => "{$user->name} ({$user->email})"])
                                     ->toArray();
                             })
                             ->searchable()
                             ->preload()
-                            ->placeholder('Select manager'),
+                            ->placeholder('Select admin manager'),
                     ])
                     ->columns(3),
 
