@@ -50,20 +50,24 @@ class Settings extends Page implements HasForms
             // Extract current values from .env
             preg_match('/CASEER_API_URL=(.*)/', $envContent, $urlMatch);
             preg_match('/CASEER_API_SECRET=(.*)/', $envContent, $secretMatch);
-            preg_match('/DEPARTMENTS=(.*)/', $envContent, $departmentsMatch);
-            preg_match('/POSITIONS=(.*)/', $envContent, $positionsMatch);
+            preg_match('/^DEPARTMENTS=(.*)$/m', $envContent, $departmentsMatch);
+            preg_match('/^POSITIONS=(.*)$/m', $envContent, $positionsMatch);
 
             // Parse departments and positions (comma-separated) and convert to repeater format
             $departments = [];
             if (! empty($departmentsMatch[1])) {
-                $deptArray = array_map('trim', explode(',', $departmentsMatch[1]));
+                $raw = trim($departmentsMatch[1]);
+                $raw = trim($raw, "\"' ");
+                $deptArray = array_map('trim', explode(',', $raw));
                 $deptArray = array_filter($deptArray);
                 $departments = array_map(fn ($name) => ['name' => $name], $deptArray);
             }
 
             $positions = [];
             if (! empty($positionsMatch[1])) {
-                $posArray = array_map('trim', explode(',', $positionsMatch[1]));
+                $raw = trim($positionsMatch[1]);
+                $raw = trim($raw, "\"' ");
+                $posArray = array_map('trim', explode(',', $raw));
                 $posArray = array_filter($posArray);
                 $positions = array_map(fn ($name) => ['name' => $name], $posArray);
             }
@@ -233,15 +237,17 @@ class Settings extends Page implements HasForms
                 $departments = array_filter($departments);
             }
             $departmentsString = implode(',', $departments);
+            // Quote value to support spaces and commas safely in .env
+            $departmentsQuoted = '"'.str_replace('"', '\\"', $departmentsString).'"';
 
-            if (preg_match('/DEPARTMENTS=/', $envContent)) {
+            if (preg_match('/^DEPARTMENTS=/m', $envContent)) {
                 $envContent = preg_replace(
-                    '/DEPARTMENTS=.*/',
-                    'DEPARTMENTS='.$departmentsString,
+                    '/^DEPARTMENTS=.*/m',
+                    'DEPARTMENTS='.$departmentsQuoted,
                     $envContent
                 );
             } else {
-                $envContent .= "\nDEPARTMENTS=".$departmentsString;
+                $envContent .= "\nDEPARTMENTS=".$departmentsQuoted;
             }
 
             // Handle positions (from repeater array)
@@ -251,15 +257,16 @@ class Settings extends Page implements HasForms
                 $positions = array_filter($positions);
             }
             $positionsString = implode(',', $positions);
+            $positionsQuoted = '"'.str_replace('"', '\\"', $positionsString).'"';
 
-            if (preg_match('/POSITIONS=/', $envContent)) {
+            if (preg_match('/^POSITIONS=/m', $envContent)) {
                 $envContent = preg_replace(
-                    '/POSITIONS=.*/',
-                    'POSITIONS='.$positionsString,
+                    '/^POSITIONS=.*/m',
+                    'POSITIONS='.$positionsQuoted,
                     $envContent
                 );
             } else {
-                $envContent .= "\nPOSITIONS=".$positionsString;
+                $envContent .= "\nPOSITIONS=".$positionsQuoted;
             }
 
             // Check if file is writable before attempting to write
