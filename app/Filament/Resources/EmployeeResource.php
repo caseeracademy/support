@@ -92,14 +92,28 @@ class EmployeeResource extends Resource
                         Forms\Components\DatePicker::make('termination_date')
                             ->visible(fn (Forms\Get $get) => $get('status') === 'terminated'),
 
-                        Forms\Components\TextInput::make('department')
-                            ->placeholder('Engineering, Marketing, Sales, etc.')
-                            ->datalist(Employee::getDepartments()),
+                        Forms\Components\Select::make('department')
+                            ->label('Department')
+                            ->options(function () {
+                                $departments = Employee::getDepartments();
 
-                        Forms\Components\TextInput::make('position')
+                                return array_combine($departments, $departments);
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('Select department'),
+
+                        Forms\Components\Select::make('position')
+                            ->label('Position')
                             ->required()
-                            ->placeholder('Software Engineer, Manager, etc.')
-                            ->datalist(Employee::getPositions()),
+                            ->options(function () {
+                                $positions = Employee::getPositions();
+
+                                return array_combine($positions, $positions);
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('Select position'),
 
                         Forms\Components\Select::make('reports_to')
                             ->label('Reports To')
