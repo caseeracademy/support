@@ -186,3 +186,4 @@ class PaymentApprovalWidget extends BaseWidget
             ->poll('30s'); // Auto-refresh every 30 seconds
     }
 }
+

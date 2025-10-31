@@ -2,7 +2,6 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -47,7 +46,7 @@ class Settings extends Page implements HasForms
     public function form(Form $form): Form
     {
         $webhookUrl = url('/api/order-webhook');
-        
+
         return $form
             ->schema([
                 Section::make('Caseer Academy API Configuration')
@@ -67,7 +66,7 @@ class Settings extends Page implements HasForms
                             ->required()
                             ->helperText('The X-Secret-Key header value for API authentication'),
                     ]),
-                    
+
                 Section::make('WooCommerce Webhook Setup')
                     ->description('Configure your WooCommerce store to send order notifications to this system.')
                     ->schema([
@@ -80,11 +79,11 @@ class Settings extends Page implements HasForms
                                     </p>
                                     <div class="flex items-center gap-2">
                                         <code class="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-md text-sm font-mono">
-                                            ' . $webhookUrl . '
+                                            '.$webhookUrl.'
                                         </code>
                                         <button 
                                             type="button"
-                                            onclick="navigator.clipboard.writeText(\'' . $webhookUrl . '\'); 
+                                            onclick="navigator.clipboard.writeText(\''.$webhookUrl.'\'); 
                                                     window.dispatchEvent(new CustomEvent(\'notify\', { detail: { message: \'Webhook URL copied to clipboard!\' } }));"
                                             class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
                                             title="Copy to clipboard"

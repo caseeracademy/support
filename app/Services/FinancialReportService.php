@@ -379,6 +379,3 @@ class FinancialReportService
     }
 }
 
-
-
-

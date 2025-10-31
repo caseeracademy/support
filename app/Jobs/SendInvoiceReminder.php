@@ -291,6 +291,3 @@ class SendInvoiceReminder implements ShouldQueue
     }
 }
 
-
-
-

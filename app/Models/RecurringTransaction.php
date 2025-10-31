@@ -89,6 +89,7 @@ class RecurringTransaction extends Model
     public function scopeDue($query, ?Carbon $date = null)
     {
         $date = $date ?? now();
+
         return $query->where('next_due_date', '<=', $date->format('Y-m-d'));
     }
 
@@ -114,7 +115,7 @@ class RecurringTransaction extends Model
             'type' => $this->type,
             'amount' => $this->amount,
             'currency' => $this->currency,
-            'title' => $this->title . ' (Recurring)',
+            'title' => $this->title.' (Recurring)',
             'description' => $this->description,
             'transaction_date' => $this->next_due_date,
             'category_id' => $this->category_id,
@@ -193,13 +194,13 @@ class RecurringTransaction extends Model
 
     public function getFormattedAmountAttribute(): string
     {
-        return number_format($this->amount, 2) . ' ' . $this->currency;
+        return number_format($this->amount, 2).' '.$this->currency;
     }
 
     public function getFrequencyDisplayAttribute(): string
     {
         $display = ucfirst($this->frequency);
-        
+
         if ($this->interval > 1) {
             $display = "Every {$this->interval} {$display}";
         }

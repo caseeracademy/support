@@ -715,6 +715,3 @@ class FinancialAnalyticsService
     }
 }
 
-
-
-

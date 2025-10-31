@@ -19,32 +19,32 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->date('transaction_date');
-            
+
             // Foreign keys
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->foreignId('payment_method_id')->constrained()->cascadeOnDelete();
-            
+
             // Polymorphic relationship - can link to customers, tickets, etc.
             $table->nullableMorphs('transactionable');
-            
+
             // Payment status tracking
             $table->enum('status', ['pending', 'completed', 'cancelled', 'refunded'])->default('completed');
             $table->timestamp('processed_at')->nullable();
-            
+
             // Reference information
             $table->string('reference_number')->nullable()->unique();
             $table->string('external_reference')->nullable(); // For external payment IDs
-            
+
             // Additional metadata
             $table->json('metadata')->nullable();
-            
+
             // Audit fields
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('approved_at')->nullable();
-            
+
             $table->timestamps();
-            
+
             // Indexes for performance
             $table->index(['type', 'status']);
             $table->index(['transaction_date', 'type']);

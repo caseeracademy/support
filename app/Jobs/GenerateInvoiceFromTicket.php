@@ -239,6 +239,3 @@ class GenerateInvoiceFromTicket implements ShouldQueue
     }
 }
 
-
-
-

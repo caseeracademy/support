@@ -68,6 +68,6 @@ class PaymentMethod extends Model
 
     public function getDisplayNameAttribute(): string
     {
-        return $this->name . ($this->type ? " ({$this->type})" : '');
+        return $this->name.($this->type ? " ({$this->type})" : '');
     }
 }

@@ -58,3 +58,4 @@ class TicketsByStatusChart extends ChartWidget
         ];
     }
 }
+

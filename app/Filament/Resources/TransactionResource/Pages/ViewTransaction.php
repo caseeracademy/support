@@ -10,26 +10,26 @@ use Filament\Resources\Pages\Page;
 class ViewTransaction extends Page
 {
     protected static string $resource = TransactionResource::class;
-    
+
     protected static string $view = 'filament.pages.transaction-details';
-    
+
     public ?Transaction $transaction = null;
-    
+
     public bool $loading = true;
-    
+
     public ?string $error = null;
-    
+
     public function mount($record): void
     {
         $this->loading = true;
 
         try {
             $this->transaction = Transaction::with([
-                'category', 
-                'paymentMethod', 
+                'category',
+                'paymentMethod',
                 'transactionable',
                 'createdBy',
-                'approvedBy'
+                'approvedBy',
             ])->findOrFail($record);
             $this->error = null;
         } catch (\Exception $e) {
@@ -38,7 +38,7 @@ class ViewTransaction extends Page
 
         $this->loading = false;
     }
-    
+
     public function getTitle(): string
     {
         return '';
@@ -52,14 +52,14 @@ class ViewTransaction extends Page
                 ->icon('heroicon-o-arrow-left')
                 ->url(TransactionResource::getUrl('index'))
                 ->color('gray'),
-                
+
             Actions\Action::make('edit')
                 ->label('Edit')
                 ->icon('heroicon-o-pencil-square')
                 ->url(fn (): string => TransactionResource::getUrl('edit', ['record' => $this->transaction->id]))
                 ->color('primary')
                 ->visible(fn (): bool => $this->transaction !== null),
-            
+
             Actions\Action::make('approve')
                 ->label('Approve')
                 ->icon('heroicon-o-check-circle')
@@ -70,7 +70,7 @@ class ViewTransaction extends Page
                     $this->transaction->approve(auth()->user());
                     $this->mount($this->transaction->id);
                 }),
-                
+
             Actions\Action::make('delete')
                 ->label('Delete')
                 ->icon('heroicon-o-trash')
@@ -83,6 +83,4 @@ class ViewTransaction extends Page
                 ->visible(fn (): bool => $this->transaction !== null),
         ];
     }
-
 }
-

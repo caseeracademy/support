@@ -15,19 +15,19 @@ class DatabaseSeeder extends Seeder
     {
         // Seed roles first (required for employees)
         $this->command->info('Creating system roles...');
-        
+
         // Seed finance-related data
         $this->call([
             CategorySeeder::class,
             PaymentMethodSeeder::class,
         ]);
-        
+
         // Seed employees with their user accounts and roles
         $this->command->info('Creating employees and user accounts...');
         $this->call([
             EmployeeSeeder::class,
         ]);
-        
+
         $this->command->info('Database seeding completed! ✅');
     }
 }

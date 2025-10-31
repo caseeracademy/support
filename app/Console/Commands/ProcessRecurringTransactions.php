@@ -29,44 +29,45 @@ class ProcessRecurringTransactions extends Command
     public function handle(): int
     {
         $this->info('🔄 Processing recurring transactions...');
-        
+
         $isDryRun = $this->option('dry-run');
         $isForced = $this->option('force');
-        
+
         // Get due recurring transactions
         $query = RecurringTransaction::query()
             ->where('is_active', true)
             ->with(['category', 'paymentMethod', 'recurrable']);
-            
-        if (!$isForced) {
+
+        if (! $isForced) {
             $query->where('next_due_date', '<=', now());
         }
-        
+
         $dueTransactions = $query->get();
-        
+
         if ($dueTransactions->isEmpty()) {
             $this->info('✅ No recurring transactions are due for processing.');
+
             return self::SUCCESS;
         }
-        
+
         $this->info("Found {$dueTransactions->count()} recurring transactions to process:");
         $this->newLine();
-        
+
         $processedCount = 0;
         $skippedCount = 0;
         $errorCount = 0;
-        
+
         $headers = ['ID', 'Title', 'Amount', 'Type', 'Next Due', 'Status'];
         $rows = [];
-        
+
         foreach ($dueTransactions as $recurringTransaction) {
             $shouldProcess = $isForced || $recurringTransaction->next_due_date->lte(now());
             $status = 'Pending';
-            
+
             if ($recurringTransaction->shouldStop()) {
                 $status = 'Stopped (max reached)';
                 $skippedCount++;
-            } elseif (!$shouldProcess) {
+            } elseif (! $shouldProcess) {
                 $status = 'Not due yet';
                 $skippedCount++;
             } else {
@@ -78,13 +79,13 @@ class ProcessRecurringTransactions extends Command
                         $status = "✅ Created #{$transaction->reference_number}";
                         $processedCount++;
                     } catch (\Exception $e) {
-                        $status = "❌ Error: " . $e->getMessage();
+                        $status = '❌ Error: '.$e->getMessage();
                         $errorCount++;
-                        $this->error("Failed to process recurring transaction #{$recurringTransaction->id}: " . $e->getMessage());
+                        $this->error("Failed to process recurring transaction #{$recurringTransaction->id}: ".$e->getMessage());
                     }
                 }
             }
-            
+
             $rows[] = [
                 $recurringTransaction->id,
                 \Str::limit($recurringTransaction->title, 30),
@@ -94,23 +95,23 @@ class ProcessRecurringTransactions extends Command
                 $status,
             ];
         }
-        
+
         $this->table($headers, $rows);
         $this->newLine();
-        
+
         // Summary
         if ($isDryRun) {
-            $this->warn("🔍 DRY RUN MODE - No transactions were actually created");
+            $this->warn('🔍 DRY RUN MODE - No transactions were actually created');
             $this->info("Would process: {$dueTransactions->count()} transactions");
         } else {
-            $this->info("📊 Processing Summary:");
+            $this->info('📊 Processing Summary:');
             $this->info("✅ Processed: {$processedCount}");
             $this->info("⏭️  Skipped: {$skippedCount}");
-            
+
             if ($errorCount > 0) {
                 $this->error("❌ Errors: {$errorCount}");
             }
-            
+
             // Mark inactive any transactions that have reached their limits
             $stoppedCount = 0;
             foreach ($dueTransactions as $recurringTransaction) {
@@ -119,12 +120,12 @@ class ProcessRecurringTransactions extends Command
                     $stoppedCount++;
                 }
             }
-            
+
             if ($stoppedCount > 0) {
                 $this->info("🛑 Stopped {$stoppedCount} recurring transactions that reached their limits");
             }
         }
-        
+
         return $errorCount > 0 ? self::FAILURE : self::SUCCESS;
     }
 }

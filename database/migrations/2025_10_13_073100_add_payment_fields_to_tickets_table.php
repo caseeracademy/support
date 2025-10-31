@@ -17,17 +17,17 @@ return new class extends Migration
             $table->decimal('total_amount', 15, 2)->nullable();
             $table->decimal('paid_amount', 15, 2)->default(0);
             $table->string('currency', 3)->default('USD');
-            
+
             // Order/payment reference
             $table->string('order_reference')->nullable();
             $table->string('payment_reference')->nullable();
-            
+
             // Timestamps for payment tracking
             $table->timestamp('payment_due_date')->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamp('payment_approved_at')->nullable();
             $table->foreignId('payment_approved_by')->nullable()->constrained('users')->nullOnDelete();
-            
+
             // Additional payment metadata
             $table->json('payment_metadata')->nullable();
         });
@@ -50,7 +50,7 @@ return new class extends Migration
                 'paid_at',
                 'payment_approved_at',
                 'payment_approved_by',
-                'payment_metadata'
+                'payment_metadata',
             ]);
         });
     }

@@ -201,6 +201,3 @@ class GenerateMonthlyFinancialSummary implements ShouldQueue
     }
 }
 
-
-
-

@@ -269,6 +269,3 @@ class TransactionExport implements FromCollection, WithCustomStartCell, WithEven
     }
 }
 
-
-
-

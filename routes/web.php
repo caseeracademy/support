@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FinancialReportController;
 use App\Http\Controllers\OrderWebhookController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -10,6 +11,27 @@ Route::get('/', function () {
 
 // Order Status Webhook from main website (exempt from CSRF in bootstrap/app.php)
 Route::post('/webhook/order-status', [OrderWebhookController::class, 'handle']);
+
+// Fallback POST route for Filament login when Livewire doesn't intercept
+// This handles cases where Livewire scripts fail to load or initialize
+Route::post('/admin/login', function () {
+    $credentials = request()->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
+
+    $remember = request()->boolean('remember');
+
+    if (Auth::attempt($credentials, $remember)) {
+        request()->session()->regenerate();
+
+        return redirect()->intended('/admin');
+    }
+
+    return back()->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+    ])->onlyInput('email');
+})->middleware('web');
 
 // Financial Report PDF Downloads (protected by auth middleware)
 Route::middleware(['auth'])->prefix('reports')->name('financial.reports.')->group(function () {

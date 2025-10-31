@@ -144,7 +144,3 @@ class FinancialReportController extends Controller
         return $pdf->download($filename);
     }
 }
-
-
-
-

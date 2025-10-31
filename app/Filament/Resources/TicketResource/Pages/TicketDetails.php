@@ -36,16 +36,15 @@ class TicketDetails extends Page
         $this->loading = true;
 
         try {
-                $this->ticket = Ticket::with(['customer', 'assignedTo', 'notes.user', 'attachments.uploadedBy', 'transactions'])
-                    ->findOrFail($record);
-                $this->error = null;
+            $this->ticket = Ticket::with(['customer', 'assignedTo', 'notes.user', 'attachments.uploadedBy', 'transactions'])
+                ->findOrFail($record);
+            $this->error = null;
         } catch (\Exception $e) {
             $this->error = 'Failed to load ticket: '.$e->getMessage();
         }
 
         $this->loading = false;
     }
-
 
     public function getTitle(): string
     {

@@ -68,7 +68,7 @@ class TicketResource extends Resource
                             ->preload(),
                     ])
                     ->columns(2),
-                    
+
                 self::getPaymentSection(),
             ]);
     }
@@ -89,14 +89,14 @@ class TicketResource extends Resource
                     ->default('pending')
                     ->required()
                     ->live(),
-                    
+
                 Forms\Components\TextInput::make('total_amount')
                     ->numeric()
                     ->prefix('$')
                     ->step(0.01)
                     ->minValue(0)
                     ->placeholder('0.00'),
-                    
+
                 Forms\Components\TextInput::make('paid_amount')
                     ->numeric()
                     ->prefix('$')
@@ -104,7 +104,7 @@ class TicketResource extends Resource
                     ->default(0)
                     ->minValue(0)
                     ->placeholder('0.00'),
-                    
+
                 Forms\Components\Select::make('currency')
                     ->options([
                         'USD' => 'USD ($)',
@@ -112,18 +112,18 @@ class TicketResource extends Resource
                         'GBP' => 'GBP (£)',
                     ])
                     ->default('USD'),
-                    
+
                 Forms\Components\TextInput::make('order_reference')
                     ->placeholder('Order ID or reference number')
                     ->maxLength(255),
-                    
+
                 Forms\Components\TextInput::make('payment_reference')
                     ->placeholder('Payment transaction ID')
                     ->maxLength(255),
-                    
+
                 Forms\Components\DateTimePicker::make('payment_due_date')
                     ->placeholder('When payment is due'),
-                    
+
                 Forms\Components\DateTimePicker::make('paid_at')
                     ->visible(fn (Forms\Get $get) => in_array($get('payment_status'), ['paid', 'partial'])),
             ])
@@ -140,7 +140,7 @@ class TicketResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->weight('medium'),
-                    
+
                 Tables\Columns\TextColumn::make('customer.name')
                     ->label('Customer')
                     ->searchable()
@@ -150,13 +150,13 @@ class TicketResource extends Resource
                     ->url(fn (Ticket $record): string => static::getUrl('details', ['record' => $record->id]))
                     ->color('primary')
                     ->weight('medium'),
-                    
+
                 Tables\Columns\TextColumn::make('subject')
                     ->searchable()
                     ->sortable()
                     ->limit(30)
                     ->tooltip(fn (Ticket $record) => $record->subject),
-                    
+
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
                         'warning' => 'pending',
@@ -169,7 +169,7 @@ class TicketResource extends Resource
                         'info' => 'resolved',
                     ])
                     ->sortable(),
-                    
+
                 Tables\Columns\BadgeColumn::make('payment_status')
                     ->label('Payment')
                     ->colors([
@@ -180,15 +180,14 @@ class TicketResource extends Resource
                         'gray' => 'refunded',
                     ])
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('formatted_total_amount')
                     ->label('Amount')
-                    ->getStateUsing(fn (Ticket $record): string => 
-                        $record->total_amount ? '$' . number_format($record->total_amount, 2) : 'N/A'
+                    ->getStateUsing(fn (Ticket $record): string => $record->total_amount ? '$'.number_format($record->total_amount, 2) : 'N/A'
                     )
                     ->weight('medium')
                     ->sortable(query: fn ($query, $direction) => $query->orderBy('total_amount', $direction)),
-                    
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')
                     ->since()
@@ -247,7 +246,7 @@ class TicketResource extends Resource
                     })
                     ->requiresConfirmation()
                     ->successNotificationTitle('Payment approved successfully'),
-                    
+
                 Tables\Actions\Action::make('mark_as_paid')
                     ->label('Mark as Paid')
                     ->icon('heroicon-o-banknotes')
@@ -258,7 +257,7 @@ class TicketResource extends Resource
                     })
                     ->requiresConfirmation()
                     ->successNotificationTitle('Ticket marked as paid'),
-                    
+
                 Tables\Actions\Action::make('send_whatsapp')
                     ->label('Message')
                     ->icon('heroicon-o-chat-bubble-left-ellipsis')
