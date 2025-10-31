@@ -9,8 +9,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Order Status Webhook from main website (exempt from CSRF in bootstrap/app.php)
+// Webhooks from main website (exempt from CSRF in bootstrap/app.php)
+// Legacy path
 Route::post('/webhook/order-status', [OrderWebhookController::class, 'handle']);
+// Current path used in Settings page
+Route::post('/api/order-webhook', [OrderWebhookController::class, 'handle']);
 
 // Fallback POST route for Filament login when Livewire doesn't intercept
 // This handles cases where Livewire scripts fail to load or initialize
